@@ -1,48 +1,60 @@
-const tabs = document.querySelectorAll('.top-tab');
-const subCatContainer = document.getElementById('sub-cat-container');
-const gridContainer = document.getElementById('grid-container');
-const dashboardContainer = document.getElementById('dashboard-container');
-const toggleBillBtn = document.getElementById('toggle-bill-btn');
-const billPanel = document.getElementById('bill-panel');
-const todaySpecialTrack = document.getElementById('today-special-track');
-
+// State Variables
 let selectedPaymentMethod = 'cash';
 let isAlreadyEntered = true;
 let allCurrentData = [];
 let cart = {};
 
-toggleBillBtn.addEventListener('click', () => {
-  billPanel.classList.toggle('active');
-  toggleBillBtn.classList.toggle('active');
-});
+// UI Element Helpers
+const getEl = (id) => document.getElementById(id);
 
-function selectPayment(method) {
-  selectedPaymentMethod = method;
-  document.getElementById('pay-cash-btn').classList.toggle('active', method === 'cash');
-  document.getElementById('pay-card-btn').classList.toggle('active', method === 'card');
-}
-
-function setEnteredStatus(entered) {
-  isAlreadyEntered = entered;
-
-  document.getElementById('entered-yes-btn').classList.toggle('active', entered);
-  document.getElementById('entered-no-btn').classList.toggle('active', !entered);
-
-  const tableBox = document.getElementById('table-box');
-  const reachTimeBox = document.getElementById('reach-time-box');
-
-  if (entered) {
-    tableBox.style.display = 'flex';
-    reachTimeBox.style.display = 'none';
-    document.getElementById('reach-time-input').value = '';
-  } else {
-    tableBox.style.display = 'none';
-    reachTimeBox.style.display = 'flex';
-    document.getElementById('table-no-input').value = '';
+// Drawer Toggle Functionality
+function initBillDrawer() {
+  const toggleBillBtn = getEl('toggle-bill-btn');
+  const billPanel = getEl('bill-panel');
+  if (toggleBillBtn && billPanel) {
+    toggleBillBtn.addEventListener('click', () => {
+      billPanel.classList.toggle('active');
+      toggleBillBtn.classList.toggle('active');
+    });
   }
 }
 
-function formatPhoneNumber(input) {
+// Payment Selection Handler
+window.selectPayment = function(method) {
+  selectedPaymentMethod = method;
+  const cashBtn = getEl('pay-cash-btn');
+  const cardBtn = getEl('pay-card-btn');
+  if (cashBtn) cashBtn.classList.toggle('active', method === 'cash');
+  if (cardBtn) cardBtn.classList.toggle('active', method === 'card');
+};
+
+// Dining Location Handler
+window.setEnteredStatus = function(entered) {
+  isAlreadyEntered = entered;
+
+  const yesBtn = getEl('entered-yes-btn');
+  const noBtn = getEl('entered-no-btn');
+  if (yesBtn) yesBtn.classList.toggle('active', entered);
+  if (noBtn) noBtn.classList.toggle('active', !entered);
+
+  const tableBox = getEl('table-box');
+  const reachTimeBox = getEl('reach-time-box');
+  const reachInput = getEl('reach-time-input');
+  const tableInput = getEl('table-no-input');
+
+  if (entered) {
+    if (tableBox) tableBox.style.display = 'flex';
+    if (reachTimeBox) reachTimeBox.style.display = 'none';
+    if (reachInput) reachInput.value = '';
+  } else {
+    if (tableBox) tableBox.style.display = 'none';
+    if (reachTimeBox) reachTimeBox.style.display = 'flex';
+    if (tableInput) tableInput.value = '';
+  }
+};
+
+// Phone Input Formatting
+window.formatPhoneNumber = function(input) {
   let digits = input.value.replace(/\D/g, '');
   if (digits.length > 10) digits = digits.substring(0, 10);
 
@@ -51,9 +63,9 @@ function formatPhoneNumber(input) {
   } else {
     input.value = digits;
   }
-}
+};
 
-// Utility function to extract numerical price from multiple potential DB properties
+// Valid Price Fallback Helper
 function getValidPrice(item) {
   if (item.price !== undefined && item.price !== null && parseFloat(item.price) > 0) {
     return parseFloat(item.price);
@@ -71,15 +83,16 @@ function getValidPrice(item) {
   return 0;
 }
 
-// Fetch Today Special & Setup Infinite Marquee Track
+// Fetch Today Specials
 async function loadTodaySpecial() {
+  const todaySpecialTrack = getEl('today-special-track');
+  if (!todaySpecialTrack) return;
+
   try {
     const res = await fetch(`/api/stock-mast?td_special=yes`);
     if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
 
     const data = await res.json();
-
-    // Use items returned directly from backend (handles boolean conversion & SQL string filtering)
     const specials = data || [];
 
     if (specials.length === 0) {
@@ -122,9 +135,9 @@ async function loadTodaySpecial() {
   }
 }
 
-// Auto Search, Filter & Highlight Selected Special Item
-async function selectSpecialItem(itemName, itemType, itemCat) {
-  // 1. Activate matching top category tab if necessary
+// Special Item Search & Scroll
+window.selectSpecialItem = async function(itemName, itemType, itemCat) {
+  const tabs = document.querySelectorAll('.top-tab');
   const currentActiveTab = document.querySelector('.top-tab.active');
   const currentType = currentActiveTab ? currentActiveTab.getAttribute('data-type') : null;
   const targetTab = Array.from(tabs).find(t => t.getAttribute('data-type') === itemType);
@@ -133,14 +146,14 @@ async function selectSpecialItem(itemName, itemType, itemCat) {
     tabs.forEach(t => t.classList.remove('active'));
     targetTab.classList.add('active');
 
-    const glow = targetTab.getAttribute('data-glow');
-    const border = targetTab.getAttribute('data-border');
+    const glow = targetTab.getAttribute('data-glow') || 'rgba(255,255,255,0.2)';
+    const border = targetTab.getAttribute('data-border') || '#444';
 
     await loadCategoryData(itemType, glow, border);
   }
 
-  // 2. Activate matching sub-category tab
-  if (itemCat) {
+  const subCatContainer = getEl('sub-cat-container');
+  if (itemCat && subCatContainer) {
     const subCatTabs = subCatContainer.querySelectorAll('.sub-cat-item');
     subCatTabs.forEach(sub => {
       if (sub.innerText.trim().toLowerCase() === itemCat.trim().toLowerCase()) {
@@ -149,8 +162,9 @@ async function selectSpecialItem(itemName, itemType, itemCat) {
     });
   }
 
-  // 3. Scroll to the card and trigger neon yellow highlight pulse
   setTimeout(() => {
+    const gridContainer = getEl('grid-container');
+    if (!gridContainer) return;
     const cards = gridContainer.querySelectorAll('.category-card');
     cards.forEach(card => {
       const nameEl = card.querySelector('.category-name');
@@ -158,8 +172,8 @@ async function selectSpecialItem(itemName, itemType, itemCat) {
         card.scrollIntoView({ behavior: 'smooth', block: 'center' });
 
         card.style.transition = 'all 0.3s ease';
-        card.style.borderColor = 'var(--neon-yellow)';
-        card.style.boxShadow = '0 0 25px var(--neon-yellow)';
+        card.style.borderColor = 'var(--neon-yellow, #ffff00)';
+        card.style.boxShadow = '0 0 25px var(--neon-yellow, #ffff00)';
 
         setTimeout(() => {
           card.style.borderColor = '';
@@ -168,67 +182,79 @@ async function selectSpecialItem(itemName, itemType, itemCat) {
       }
     });
   }, 120);
-}
+};
 
+// Load Primary Category Stock Items
 async function loadCategoryData(type, glowColor, borderColor) {
-  try {
+  const dashboardContainer = getEl('dashboard-container');
+  const subCatContainer = getEl('sub-cat-container');
+  const gridContainer = getEl('grid-container');
+
+  if (dashboardContainer) {
     dashboardContainer.style.boxShadow = `0 0 30px ${glowColor}`;
     dashboardContainer.style.borderColor = borderColor;
+  }
 
-    subCatContainer.innerHTML = '<div class="status-msg">Loading...</div>';
-    gridContainer.innerHTML = '<div class="status-msg">Loading...</div>';
+  if (subCatContainer) subCatContainer.innerHTML = '<div class="status-msg">Loading...</div>';
+  if (gridContainer) gridContainer.innerHTML = '<div class="status-msg">Loading...</div>';
 
-    const res = await fetch(`/api/stock-mast?item_type=${type}`);
+  try {
+    const fetchUrl = type ? `/api/stock-mast?item_type=${encodeURIComponent(type)}` : `/api/stock-mast`;
+    const res = await fetch(fetchUrl);
     if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
 
     const data = await res.json();
     allCurrentData = data;
 
     if (!data || data.length === 0) {
-      subCatContainer.innerHTML = '<div class="status-msg">No categories</div>';
-      gridContainer.innerHTML = '<div class="status-msg">No items found.</div>';
+      if (subCatContainer) subCatContainer.innerHTML = '<div class="status-msg">No categories</div>';
+      if (gridContainer) gridContainer.innerHTML = '<div class="status-msg">No items found.</div>';
       return;
     }
 
     const categories = [...new Set(data.map(item => item.item_cat))].filter(Boolean);
 
-    subCatContainer.innerHTML = categories.map((cat, idx) => `
-      <div class="sub-cat-item ${idx === 0 ? 'active' : ''}" onclick="filterBySubCat('${cat}', this)">
-        ${cat}
-      </div>
-    `).join('');
+    if (subCatContainer) {
+      subCatContainer.innerHTML = categories.map((cat, idx) => `
+        <div class="sub-cat-item ${idx === 0 ? 'active' : ''}" onclick="filterBySubCat('${cat}', this)">
+          ${cat}
+        </div>
+      `).join('');
+    }
 
     if (categories.length > 0) {
-      filterBySubCat(categories[0], subCatContainer.querySelector('.sub-cat-item'));
+      filterBySubCat(categories[0], subCatContainer ? subCatContainer.querySelector('.sub-cat-item') : null);
     } else {
       renderCards(data);
     }
 
   } catch (err) {
     console.error("Fetch Error:", err);
-    subCatContainer.innerHTML = '<div class="status-msg">Error</div>';
-    gridContainer.innerHTML = `<div class="status-msg">Failed to load data.</div>`;
+    if (subCatContainer) subCatContainer.innerHTML = '<div class="status-msg">Error</div>';
+    if (gridContainer) gridContainer.innerHTML = `<div class="status-msg">Failed to load data.</div>`;
   }
 }
 
-function filterBySubCat(category, element) {
+// Subcategory Filter
+window.filterBySubCat = function(category, element) {
   document.querySelectorAll('.sub-cat-item').forEach(el => el.classList.remove('active'));
   if (element) element.classList.add('active');
 
   const filtered = allCurrentData.filter(item => item.item_cat === category);
   renderCards(filtered);
-}
+};
 
-function changeQty(itemName, sizeStr, priceVal, delta, itCode) {
+// Quantity Stepper Handler
+window.changeQty = function(itemName, sizeStr, priceVal, delta, itCode) {
   const cartKey = `${itemName}_${sizeStr}`;
-  const inputEl = document.getElementById(`qty-${cartKey}`);
-  const rowEl = document.getElementById(`row-${cartKey}`);
+  const inputEl = getEl(`qty-${cartKey}`);
+  const rowEl = getEl(`row-${cartKey}`);
 
-  let currentQty = parseInt(inputEl.value) || 0;
+  let currentQty = inputEl ? (parseInt(inputEl.value) || 0) : 0;
   currentQty += delta;
   if (currentQty < 0) currentQty = 0;
 
-  inputEl.value = currentQty;
+  if (inputEl) inputEl.value = currentQty;
 
   if (currentQty > 0) {
     cart[cartKey] = { name: itemName, size: sizeStr, price: priceVal, qty: currentQty, it_code: itCode || itemName };
@@ -239,18 +265,23 @@ function changeQty(itemName, sizeStr, priceVal, delta, itCode) {
   }
 
   updateBillDrawer();
-}
+};
 
-async function placeOrder() {
+// Order Submission
+window.placeOrder = async function() {
   const keys = Object.keys(cart);
   if (keys.length === 0) {
     alert("Please add at least one item to place an order.");
     return;
   }
 
-  const rawPhoneNo = document.getElementById('phone-no-input').value.replace(/\s+/g, '').trim();
-  const reachTime = document.getElementById('reach-time-input').value;
-  const tableNo = document.getElementById('table-no-input').value.trim();
+  const phoneInput = getEl('phone-no-input');
+  const reachInput = getEl('reach-time-input');
+  const tableInput = getEl('table-no-input');
+
+  const rawPhoneNo = phoneInput ? phoneInput.value.replace(/\s+/g, '').trim() : '';
+  const reachTime = reachInput ? reachInput.value : '';
+  const tableNo = tableInput ? tableInput.value.trim() : '';
 
   if (isAlreadyEntered) {
     if (!tableNo) {
@@ -264,7 +295,7 @@ async function placeOrder() {
     }
   }
 
-  const placeOrderBtn = document.getElementById('btn-place-order');
+  const placeOrderBtn = getEl('btn-place-order');
 
   const itemsArray = keys.map(key => ({
     name: cart[key].name,
@@ -275,14 +306,14 @@ async function placeOrder() {
   }));
 
   try {
-    placeOrderBtn.disabled = true;
-    placeOrderBtn.innerText = "SAVING...";
+    if (placeOrderBtn) {
+      placeOrderBtn.disabled = true;
+      placeOrderBtn.innerText = "SAVING...";
+    }
 
     const response = await fetch('/api/place-order', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         alreadyEntered: isAlreadyEntered,
         tableNo: isAlreadyEntered ? tableNo : null,
@@ -302,9 +333,9 @@ async function placeOrder() {
       updateBillDrawer();
       document.querySelectorAll('.qty-val').forEach(input => input.value = 0);
       document.querySelectorAll('.size-row').forEach(row => row.classList.remove('has-qty'));
-      document.getElementById('table-no-input').value = '';
-      document.getElementById('reach-time-input').value = '';
-      document.getElementById('phone-no-input').value = '';
+      if (tableInput) tableInput.value = '';
+      if (reachInput) reachInput.value = '';
+      if (phoneInput) phoneInput.value = '';
     } else {
       alert(`Failed to save order: ${result.details || result.error || 'Server Error'}`);
     }
@@ -312,19 +343,22 @@ async function placeOrder() {
     console.error("Place Order API Error:", err);
     alert("Network Error: Could not reach server.");
   } finally {
-    placeOrderBtn.disabled = false;
-    placeOrderBtn.innerText = "PLACE ORDER";
+    if (placeOrderBtn) {
+      placeOrderBtn.disabled = false;
+      placeOrderBtn.innerText = "PLACE ORDER";
+    }
   }
-}
+};
 
+// Bill Drawer UI Refresh
 function updateBillDrawer() {
-  const container = document.getElementById('bill-items-container');
-  const totalValEl = document.getElementById('bill-total-val');
+  const container = getEl('bill-items-container');
+  const totalValEl = getEl('bill-total-val');
 
   const keys = Object.keys(cart);
   if (keys.length === 0) {
-    container.innerHTML = '<p style="color:#888; font-size: 10px;">No items selected.</p>';
-    totalValEl.innerText = '0.00';
+    if (container) container.innerHTML = '<p style="color:#888; font-size: 10px;">No items selected.</p>';
+    if (totalValEl) totalValEl.innerText = '0.00';
     return;
   }
 
@@ -348,11 +382,15 @@ function updateBillDrawer() {
     `;
   });
 
-  container.innerHTML = html;
-  totalValEl.innerText = grandTotal.toFixed(2);
+  if (container) container.innerHTML = html;
+  if (totalValEl) totalValEl.innerText = grandTotal.toFixed(2);
 }
 
+// Render Grid Item Cards
 function renderCards(items) {
+  const gridContainer = getEl('grid-container');
+  if (!gridContainer) return;
+
   if (!items || items.length === 0) {
     gridContainer.innerHTML = '<div class="status-msg">No items available.</div>';
     return;
@@ -362,10 +400,7 @@ function renderCards(items) {
     const fallbackPrice = getValidPrice(item);
 
     const variations = item.variations || [
-      { item_size: 'L', price: fallbackPrice },
-      { item_size: 'M', price: fallbackPrice },
-      { item_size: 'S', price: fallbackPrice },
-      { item_size: 'XS', price: fallbackPrice }
+      { item_size: 'STD', price: fallbackPrice }
     ];
 
     const overlayHtml = variations.map(v => {
@@ -406,27 +441,38 @@ function renderCards(items) {
   }).join('');
 }
 
-tabs.forEach(tab => {
-  tab.addEventListener('click', () => {
-    tabs.forEach(t => t.classList.remove('active'));
-    tab.classList.add('active');
-
-    const itemType = tab.getAttribute('data-type');
-    const glow = tab.getAttribute('data-glow');
-    const border = tab.getAttribute('data-border');
-    loadCategoryData(itemType, glow, border);
-  });
-});
-
-// Initial Load Setup
+// Initialization & Tab Binding
 document.addEventListener('DOMContentLoaded', () => {
+  initBillDrawer();
   loadTodaySpecial();
 
-  const activeTab = document.querySelector('.top-tab.active');
+  const tabs = document.querySelectorAll('.top-tab');
+
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      tabs.forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+
+      const itemType = tab.getAttribute('data-type');
+      const glow = tab.getAttribute('data-glow') || 'rgba(255,255,255,0.2)';
+      const border = tab.getAttribute('data-border') || '#444';
+      loadCategoryData(itemType, glow, border);
+    });
+  });
+
+  // Select active tab or fall back to the first tab
+  let activeTab = document.querySelector('.top-tab.active');
+  if (!activeTab && tabs.length > 0) {
+    activeTab = tabs[0];
+    activeTab.classList.add('active');
+  }
+
   if (activeTab) {
     const itemType = activeTab.getAttribute('data-type');
-    const glow = activeTab.getAttribute('data-glow');
-    const border = activeTab.getAttribute('data-border');
+    const glow = activeTab.getAttribute('data-glow') || 'rgba(255,255,255,0.2)';
+    const border = activeTab.getAttribute('data-border') || '#444';
     loadCategoryData(itemType, glow, border);
+  } else {
+    loadCategoryData('', 'rgba(255,255,255,0.2)', '#444');
   }
 });
