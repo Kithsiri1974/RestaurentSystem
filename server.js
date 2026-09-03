@@ -1,3 +1,4 @@
+require("dotenv").config();
 const express = require("express");
 const path = require("path");
 const postgres = require("postgres");
@@ -5,46 +6,36 @@ const postgres = require("postgres");
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Neon Connection String
-const connectionString =
-  process.env.DATABASE_URL ||
-  "postgresql://neondb_owner:npg_G7Jzfr0cqdmk@ep-wandering-block-ax0pmalp-pooler.c-4.us-east-2.aws.neon.tech/neondb?sslmode=require&channel_binding=require";
+// Neon Connection Setup
+const connectionString = process.env.DATABASE_URL;
+
+if (!connectionString) {
+  console.error("FATAL ERROR: DATABASE_URL environment variable is not defined.");
+}
 
 const sql = postgres(connectionString);
 
-// Parse incoming JSON & Form data
+// Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Serve static assets natively from current working directory
-app.use(express.static(process.cwd()));
+// Serve static assets (handles both local directory and Vercel serverless environment)
+app.use(express.static(path.join(__dirname, "public")));
 app.use(express.static(path.join(process.cwd(), "public")));
+app.use(express.static(process.cwd()));
 
-// Primary sidebar categories mapping
+// Categories Endpoint
 const SIDEBAR_CATEGORIES = [
   { id: "soft-drinks", name: "Soft Drinks", type: "Soft", icon: "🥤" },
   { id: "bar-items", name: "Bar Items", type: "Bar", icon: "🍸" },
   { id: "kitchen-items", name: "Kitchen Items", type: "Kic", icon: "🍳" },
 ];
 
-// Root endpoint handling with guaranteed resolution
-app.get("/", (req, res) => {
-  res.sendFile(path.join(process.cwd(), "index.html"), (err) => {
-    if (err) {
-      res.sendFile(path.join(process.cwd(), "public", "index.html"), (fallbackErr) => {
-        if (fallbackErr) {
-          res.json({ message: "Restaurant System API is running" });
-        }
-      });
-    }
-  });
-});
-
 app.get("/api/categories", (req, res) => {
   res.json(SIDEBAR_CATEGORIES);
 });
 
-// Stock Items API Endpoint returning items with grouped size variations
+// Stock Items API Endpoint
 app.get("/api/stock-mast", async (req, res) => {
   try {
     const { item_type } = req.query;
@@ -63,7 +54,6 @@ app.get("/api/stock-mast", async (req, res) => {
       `;
     }
 
-    // Group size variations by item name/description
     const groupedMap = new Map();
 
     rows.forEach((row) => {
@@ -107,23 +97,31 @@ app.get("/api/stock-mast", async (req, res) => {
   }
 });
 
-// Catch-all route handler for index.html
-app.use((req, res) => {
-  res.sendFile(path.join(process.cwd(), "index.html"), (err) => {
+// Root & Fallback HTML Handler
+const sendIndexPage = (req, res) => {
+  const publicIndex = path.join(__dirname, "public", "index.html");
+  const rootIndex = path.join(process.cwd(), "index.html");
+
+  res.sendFile(publicIndex, (err) => {
     if (err) {
-      res.sendFile(path.join(process.cwd(), "public", "index.html"), (fallbackErr) => {
+      res.sendFile(rootIndex, (fallbackErr) => {
         if (fallbackErr) {
-          res.status(404).send("Page Not Found");
+          res.status(404).send("index.html not found");
         }
       });
     }
   });
-});
+};
 
-// Export app instance for Vercel
+app.get("/", sendIndexPage);
+
+// Catch-all route for frontend SPA routing
+app.use(sendIndexPage);
+
+// Export for Vercel Serverless Function
 module.exports = app;
 
-// Listen locally when not in production
+// Local Development Listener
 if (process.env.NODE_ENV !== "production" && !process.env.VERCEL) {
   app.listen(PORT, () => {
     console.log(`Server running locally at http://localhost:${PORT}`);
