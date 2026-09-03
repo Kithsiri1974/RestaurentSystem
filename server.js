@@ -31,6 +31,28 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(process.cwd(), "public")));
 app.use(express.static(process.cwd()));
 
+// --- OPTION 2: Explicit Static File Fallback Routes for Vercel ---
+app.get("/script.js", (req, res) => {
+  res.sendFile(path.join(process.cwd(), "public", "script.js"), (err) => {
+    if (err) res.sendFile(path.join(process.cwd(), "script.js"));
+  });
+});
+
+app.get("/style.css", (req, res) => {
+  res.sendFile(path.join(process.cwd(), "public", "style.css"), (err) => {
+    if (err) res.sendFile(path.join(process.cwd(), "style.css"));
+  });
+});
+
+app.get("/favicon.ico", (req, res) => {
+  res.sendFile(path.join(process.cwd(), "public", "favicon.ico"), (err) => {
+    if (err) res.sendFile(path.join(process.cwd(), "favicon.ico"), (err2) => {
+      if (err2) res.status(204).end(); // Silent fallback if no icon exists
+    });
+  });
+});
+// -----------------------------------------------------------------
+
 const SIDEBAR_CATEGORIES = [
   { id: "soft-drinks", name: "Soft Drinks", type: "Soft", icon: "🥤" },
   { id: "bar-items", name: "Bar Items", type: "Bar", icon: "🍸" },
