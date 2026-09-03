@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Neon Dashboard</title>
+  <!-- Relative path to load CSS correctly on Vercel -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- TOP CATEGORY SELECTION BAR -->
+  <div class="top-category-bar">
+    <div class="top-tab cigarettes" data-type="Cig" data-glow="rgba(255, 170, 0, 0.3)" data-border="rgba(255, 170, 0, 0.4)">
+      <span>🚬</span> Cigarettes
+    </div>
+    <div class="top-tab kitchen-items active" data-type="Kic" data-glow="rgba(255, 0, 127, 0.3)" data-border="rgba(255, 0, 127, 0.4)">
+      <span>🍳</span> Kitchen Items
+    </div>
+    <div class="top-tab bar-items" data-type="Bar" data-glow="rgba(157, 0, 255, 0.3)" data-border="rgba(157, 0, 255, 0.4)">
+      <span>🍸</span> Bar Items
+    </div>
+    <div class="top-tab soft-drinks" data-type="SDR" data-glow="rgba(0, 243, 255, 0.3)" data-border="rgba(0, 243, 255, 0.4)">
+      <span>🥤</span> Soft Drinks
+    </div>
+  </div>
+
+  <!-- DASHBOARD CONTAINER -->
+  <div class="dashboard-container" id="dashboard-container">
+    <div class="sub-cat-bar" id="sub-cat-container">
+      <div class="status-msg">Loading...</div>
+    </div>
+    <div class="main-content">
+      <div class="grid-container" id="grid-container">
+        <div class="status-msg">Loading...</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TODAY SPECIAL CONTINUOUS SCROLL BOTTOM BAR -->
+  <div class="today-special-wrapper">
+    <div class="today-special-title">🌟 TODAY SPECIAL</div>
+    <div class="today-special-marquee-container">
+      <div class="today-special-track" id="today-special-track">
+        <div class="status-msg" style="font-size:11px; padding-left:15px;">Loading specials...</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BILL TOGGLE BUTTON -->
+  <button class="btn-3d-arrow" id="toggle-bill-btn">BILL ◄</button>
+
+  <!-- POPUP BILL PANEL -->
+  <div class="bill-popup-panel" id="bill-panel">
+    <div class="bill-title">Current Bill</div>
+    <div class="bill-items-area" id="bill-items-container">
+      <p style="color:#888; font-size: 10px;">No items selected.</p>
+    </div>
+    <div class="bill-footer">
+      <div class="bill-total-row">
+        <span>Total:</span>
+        <span id="bill-total-val">0.00</span>
+      </div>
+      <div>
+        <div class="bill-section-label">Payment Method</div>
+        <div class="payment-toggle-group">
+          <button type="button" class="pay-btn active" id="pay-cash-btn" onclick="selectPayment('cash')">CASH</button>
+          <button type="button" class="pay-btn" id="pay-card-btn" onclick="selectPayment('card')">CARD</button>
+        </div>
+      </div>
+
+      <div>
+        <div class="bill-section-label">Are You Already Inside the Restaurant?</div>
+        <div class="payment-toggle-group">
+          <button type="button" class="pay-btn active" id="entered-yes-btn" onclick="setEnteredStatus(true)">YES</button>
+          <button type="button" class="pay-btn" id="entered-no-btn" onclick="setEnteredStatus(false)">NO</button>
+        </div>
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 4px;">
+        <div class="field-box" id="table-box">
+          <div class="bill-section-label">Table No.</div>
+          <input type="text" class="bill-input" placeholder="e.g. 12" id="table-no-input">
+        </div>
+
+        <div class="field-box" id="reach-time-box" style="display: none;">
+          <div class="bill-section-label">Reach Time to Restaurant</div>
+          <input type="datetime-local" class="bill-input" id="reach-time-input">
+        </div>
+
+        <div class="field-box">
+          <div class="bill-section-label">Telephone No.</div>
+          <input type="text" class="bill-input" placeholder="077 1234567" id="phone-no-input" oninput="formatPhoneNumber(this)" maxlength="11">
+        </div>
+      </div>
+
+      <button type="button" class="btn-place-order" id="btn-place-order" onclick="placeOrder()">PLACE ORDER</button>
+    </div>
+  </div>
+
+  <!-- Relative path to load JS correctly on Vercel -->
+  <script src="script.js" defer></script>
+</body>
+</html>
