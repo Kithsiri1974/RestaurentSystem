@@ -1,7 +1,6 @@
 :root {
   --bg-color: #080a10;
   --card-bg: #0d111d;
-  --panel-bg: #121624;
   --neon-cyan: #00f3ff;
   --neon-pink: #ff007f;
   --neon-purple: #9d00ff;
@@ -9,7 +8,6 @@
   --neon-yellow: #ffff00;
   --text-main: #ffffff;
   --text-muted: #8e99b0;
-  --border-light: rgba(255, 255, 255, 0.1);
 }
 
 * {
@@ -25,7 +23,7 @@ body {
   height: 100vh;
   width: 100vw;
   padding: 15px;
-  padding-bottom: 125px; /* Room for fixed bottom bar */
+  padding-bottom: 125px; /* Leave room for fixed bottom bar */
   display: flex;
   flex-direction: column;
   gap: 12px;
@@ -93,7 +91,6 @@ body {
   border: 1.5px solid rgba(255, 0, 127, 0.4);
   box-shadow: 0 0 30px rgba(255, 0, 127, 0.2);
   overflow: hidden;
-  transition: box-shadow 0.3s ease, border-color 0.3s ease;
 }
 
 /* 3. SUB-CATEGORY HORIZONTAL BAR */
@@ -147,7 +144,7 @@ body {
 
 .grid-container {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
   gap: 20px;
 }
 
@@ -160,13 +157,12 @@ body {
   position: relative;
   overflow: hidden;
   height: 320px;
-  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+  transition: transform 0.2s ease, border-color 0.2s ease;
 }
 
 .category-card:hover {
   transform: translateY(-3px);
   border-color: var(--neon-pink);
-  box-shadow: 0 5px 20px rgba(255, 0, 127, 0.25);
 }
 
 .image-wrapper {
@@ -192,29 +188,30 @@ body {
   flex-direction: column;
   gap: 5px;
   z-index: 2;
-  background: linear-gradient(180deg, rgba(8, 10, 16, 0.7) 0%, rgba(8, 10, 16, 0.2) 100%);
+  background: linear-gradient(180deg, rgba(8, 10, 16, 0.5) 0%, rgba(8, 10, 16, 0.1) 100%);
 }
 
 .size-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: rgba(0, 0, 0, 0.3);
-  padding: 4px 6px;
-  border-radius: 6px;
+  background: transparent !important;
+  padding: 3px 6px;
+  border-radius: 4px;
   border: 1px solid transparent;
   transition: all 0.2s ease;
 }
 
 .size-code {
-  min-width: 28px;
+  width: 24px;
   height: 20px;
+  background: transparent;
   color: #ffffff;
   font-weight: 800;
   font-size: 11px;
   display: flex;
   align-items: center;
-  justify-content: flex-start;
+  justify-content: center;
   letter-spacing: 0.5px;
   text-shadow: 0 0 6px rgba(0, 0, 0, 0.9);
 }
@@ -225,19 +222,22 @@ body {
   align-items: center;
   justify-content: flex-end;
   padding-right: 8px;
+  background: transparent !important;
 }
 
 .price-tag {
+  background: transparent !important;
   color: #ffffff;
   font-weight: 900;
-  font-size: 12px;
+  font-size: 13px;
+  padding: 0;
   letter-spacing: 0.3px;
   text-shadow: 0 0 6px rgba(0, 0, 0, 0.9);
   transition: color 0.2s ease;
 }
 
 .size-row.has-qty {
-  background: rgba(13, 17, 29, 0.85) !important;
+  background: transparent !important;
   border: 1.5px solid var(--neon-yellow) !important;
   box-shadow: 0 0 10px rgba(255, 255, 0, 0.3);
 }
@@ -255,7 +255,6 @@ body {
   border: 1px solid rgba(255, 255, 255, 0.3);
   border-radius: 4px;
   height: 22px;
-  overflow: hidden;
 }
 
 .size-row.has-qty .qty-stepper {
@@ -264,7 +263,7 @@ body {
 }
 
 .qty-btn {
-  width: 22px;
+  width: 20px;
   height: 100%;
   background: transparent;
   border: none;
@@ -276,7 +275,6 @@ body {
   align-items: center;
   justify-content: center;
   user-select: none;
-  transition: all 0.2s ease;
 }
 
 .qty-btn:hover {
@@ -307,7 +305,6 @@ body {
   text-align: center;
   background: #090c14;
   border-top: 1px solid rgba(0, 243, 255, 0.2);
-  color: var(--text-main);
 }
 
 .status-msg {
@@ -316,26 +313,23 @@ body {
   padding: 10px;
 }
 
-/* 5. REFINED BILL DRAWER STYLES */
+/* BILL DRAWER STYLES */
 .bill-popup-panel {
   position: fixed;
   top: 50%;
   right: 0;
   transform: translateY(-50%) translateX(100%);
-  width: 270px;
-  height: 65vh;
-  background: var(--panel-bg);
-  color: var(--text-main);
+  width: 250px;
+  height: 60vh;
+  background: #ffffff;
+  color: #111;
   transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  padding: 12px;
+  padding: 10px;
   z-index: 100;
   display: flex;
   flex-direction: column;
-  border-radius: 16px 0 0 16px;
-  border: 1.5px solid var(--neon-cyan);
-  border-right: none;
-  box-shadow: -10px 0 30px rgba(0, 243, 255, 0.2);
-  backdrop-filter: blur(10px);
+  border-radius: 12px 0 0 12px;
+  box-shadow: -5px 0 20px rgba(0, 0, 0, 0.5);
 }
 
 .bill-popup-panel.active { 
@@ -347,61 +341,46 @@ body {
   top: 50%;
   right: 0;
   transform: translateY(-50%);
-  padding: 10px 12px;
-  background: var(--neon-cyan);
-  color: #000;
+  padding: 8px 10px;
+  background: #ffffff;
+  color: #111;
   border: none;
-  border-radius: 12px 0 0 12px;
+  border-radius: 16px 0 0 16px;
   font-weight: 900;
-  font-size: 12px;
+  font-size: 11px;
   cursor: pointer;
   z-index: 101;
-  box-shadow: -4px 0 15px rgba(0, 243, 255, 0.4);
-  transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1), background 0.2s ease;
-}
-
-.btn-3d-arrow:hover {
-  background: #ffffff;
+  box-shadow: -4px 0 15px rgba(0, 0, 0, 0.4);
+  transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .btn-3d-arrow.active { 
-  right: 270px; 
+  right: 250px; 
 }
 
 .bill-title {
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 800;
-  margin-bottom: 8px;
-  color: var(--neon-cyan);
-  letter-spacing: 0.5px;
-  text-transform: uppercase;
+  margin-bottom: 4px;
+  color: #111;
 }
 
 .bill-items-area {
   flex: 1;
   overflow-y: auto;
-  padding-right: 4px;
-  margin-bottom: 8px;
-}
-
-.bill-items-area::-webkit-scrollbar {
-  width: 4px;
-}
-
-.bill-items-area::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.2);
-  border-radius: 4px;
+  padding-right: 2px;
+  margin-bottom: 4px;
 }
 
 .bill-item-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 8px;
+  margin-bottom: 6px;
   font-size: 11px;
   gap: 6px;
-  border-bottom: 1px dashed rgba(255, 255, 255, 0.15);
-  padding-bottom: 6px;
+  border-bottom: 1px dashed #e8e8e8;
+  padding-bottom: 4px;
 }
 
 .bill-item-info {
@@ -412,92 +391,86 @@ body {
 }
 
 .bill-item-name {
-  max-width: 130px;
+  max-width: 120px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   font-weight: 700;
-  color: var(--text-main);
+  color: #111;
 }
 
 .bill-item-size {
-  font-size: 10px;
-  color: var(--text-muted);
+  font-size: 9px;
+  color: #666;
   font-weight: 600;
 }
 
 .bill-qty-badge {
   font-size: 11px;
-  font-weight: 800;
-  color: var(--neon-yellow);
-  min-width: 22px;
+  font-weight: 700;
+  color: #111;
+  min-width: 20px;
   text-align: center;
 }
 
 .bill-item-price {
   font-weight: 700;
-  color: var(--neon-cyan);
+  color: #111;
   font-size: 11px;
-  min-width: 55px;
+  min-width: 50px;
   text-align: right;
 }
 
 .bill-footer {
-  border-top: 1.5px dashed var(--border-light);
-  padding-top: 8px;
+  border-top: 1.5px dashed #a0a5b5;
+  padding-top: 5px;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 5px;
 }
 
 .bill-total-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 900;
-  color: var(--text-main);
-}
-
-.bill-total-row span:last-child {
-  color: var(--neon-yellow);
+  color: #0b0f19;
 }
 
 .bill-section-label {
-  font-size: 9px;
+  font-size: 8.5px;
   font-weight: 800;
-  color: var(--text-muted);
-  letter-spacing: 0.5px;
+  color: #4a5162;
+  letter-spacing: 0.3px;
   text-transform: uppercase;
   margin-bottom: 2px;
 }
 
 .payment-toggle-group {
   display: flex;
-  background: rgba(0, 0, 0, 0.4);
-  border: 1px solid var(--border-light);
-  border-radius: 6px;
+  background: #e1e4ec;
+  border-radius: 4px;
   padding: 2px;
   gap: 3px;
 }
 
 .pay-btn {
   flex: 1;
-  padding: 5px 0;
+  padding: 3px 0;
   border: none;
-  border-radius: 4px;
-  font-size: 10px;
+  border-radius: 3px;
+  font-size: 9.5px;
   font-weight: 800;
   cursor: pointer;
   background: transparent;
-  color: var(--text-muted);
+  color: #555;
   transition: all 0.2s ease;
 }
 
 .pay-btn.active {
-  background: var(--neon-cyan);
-  color: #000;
-  box-shadow: 0 0 10px rgba(0, 243, 255, 0.4);
+  background: #0f1422;
+  color: #ffffff;
 }
 
 .field-box {
@@ -507,42 +480,39 @@ body {
 
 .bill-input {
   width: 100%;
-  padding: 6px 8px;
-  border: 1px solid var(--border-light);
-  border-radius: 6px;
-  font-size: 10px;
+  padding: 4px 5px;
+  border: 1px solid #c8cbd6;
+  border-radius: 4px;
+  font-size: 9.5px;
   outline: none;
-  background: rgba(0, 0, 0, 0.5);
-  color: #fff;
-  transition: border-color 0.2s ease;
+  background: #ffffff;
+  color: #222;
 }
 
 .bill-input:focus {
-  border-color: var(--neon-cyan);
+  border-color: #0f1422;
 }
 
 .btn-place-order {
   width: 100%;
-  padding: 9px 0;
-  background: var(--neon-pink);
+  padding: 7px 0;
+  background: #0f1422;
   color: #ffffff;
   border: none;
-  border-radius: 8px;
-  font-size: 11px;
+  border-radius: 5px;
+  font-size: 10.5px;
   font-weight: 900;
-  letter-spacing: 0.8px;
+  letter-spacing: 0.5px;
   cursor: pointer;
-  transition: all 0.2s ease;
-  margin-top: 4px;
-  box-shadow: 0 0 12px rgba(255, 0, 127, 0.4);
+  transition: background 0.2s ease;
+  margin-top: 2px;
 }
 
 .btn-place-order:hover {
-  background: #ff3399;
-  box-shadow: 0 0 18px rgba(255, 0, 127, 0.7);
+  background: #232b3f;
 }
 
-/* 6. TODAY SPECIAL FIXED CONTINUOUS SCROLL BAR */
+/* 5. TODAY SPECIAL FIXED CONTINUOUS SCROLL BAR */
 .today-special-wrapper {
   position: fixed;
   bottom: 0;
